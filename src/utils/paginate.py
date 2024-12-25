@@ -1,6 +1,8 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton
 
+from src.models.basic import Pizzeria, PizzeriaLite
+
 ITEMS_PER_PAGE = 8
 
 def paginate_keyboard(items, page: int, prefix: str):
@@ -9,12 +11,17 @@ def paginate_keyboard(items, page: int, prefix: str):
     end = start + ITEMS_PER_PAGE
 
     for item in items[start:end]:
+        text = item.name
+        if isinstance(item, Pizzeria) and item.address: 
+            text = f"{item.name} ({item.address})"
+        elif isinstance(item, PizzeriaLite) and item.address:
+            text = f"{item.name} ({item.address.text})"
         builder.button(
-            text=item.name,
+            text=text,
             callback_data=f"{prefix}_{item.id}"
         )
     
-    builder.adjust(2)
+    builder.adjust(1)
 
     if len(items) > ITEMS_PER_PAGE:
         navigation_buttons = []

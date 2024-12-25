@@ -2,12 +2,11 @@ import aiohttp
 import os
 
 from aiocache import Cache, cached
-from aiocache.serializers import JsonSerializer
 
 from dotenv import load_dotenv
 from typing import List
 
-from src.models.basic import Country, Pizzeria, PizzeriaLite
+from src.models.basic import Country, City, Pizzeria, PizzeriaLite
 from src.models.revenue import Revenue, CountryFinStatsResponse
 
 cache = Cache.from_url("memory://")
@@ -25,6 +24,13 @@ class DodoAPI:
             async with session.get(f"{self.global_url}countries/list") as resp:
                 data = await resp.json()
                 return [Country.model_validate(country) for country in data["countries"]]
+    
+    @cached(ttl=3600)
+    async def get_cities(self, country_code) -> List[City]:
+        async with aiohttp.ClientSession(headers=self.headers) as session:
+            async with session.get(f"{self.base_url}/{country_code}/api/v1/GetLocalities") as resp:
+                data = await resp.json()
+                return [City.model_validate(country) for country in data]
     
     async def get_country_stats(self, country_code: str) -> CountryFinStatsResponse:
         async with aiohttp.ClientSession(headers=self.headers) as session:
@@ -88,8 +94,9 @@ class DodoAPI:
                 if resp.status == 200:
                     pizzerias_data = await resp.json()
                     pizzerias = [
-                        Pizzeria(**pizzeria) for pizzeria in pizzerias_data
-                        if name.lower() in pizzeria['Name'].lower()
+                        Pizzeria(**pizzeria) 
+                        for pizzeria in pizzerias_data 
+                        if (name.lower() in pizzeria['Name'].lower()) or (name.lower() in pizzeria['Address'].lower())
                     ]
                     return pizzerias
                 else:

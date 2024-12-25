@@ -1,10 +1,10 @@
 from aiogram import Dispatcher
-from . import country_handler, pizzeria_handler, stats_handler, search_handler
-from .inline import search
+from . import country, fin_stats, pizzeria, search
+from .inline import inline_search
 
 def register_handlers(dp: Dispatcher):
-    dp.include_router(country_handler.router)
-    dp.include_router(pizzeria_handler.router)
-    dp.include_router(stats_handler.router)
-    dp.include_router(search_handler.router)
+    dp.include_router(country.router)
+    dp.include_router(pizzeria.router)
+    dp.include_router(fin_stats.router)
     dp.include_router(search.router)
+    dp.include_router(inline_search.router)

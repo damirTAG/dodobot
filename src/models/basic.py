@@ -69,7 +69,7 @@ class PizzeriaLite(BaseModel):
     name: str
     address: str
     startDate: str
-    address: Address
+    address: Optional[Address] = None
 
 @dataclass
 class Country(BaseModel):
@@ -77,3 +77,8 @@ class Country(BaseModel):
     code: str
     name: str
     currency: str
+
+class City(BaseModel):
+    id: int
+    uuid: str
+    name: str
