@@ -60,12 +60,12 @@ def format_country_stats(country_name: str, stats: CountryFinStatsResponse) -> s
 💰 <b>Валюта:</b> {stats.currency}
 
 <b>Доходы:</b>
-- <b>текущего года:</b> {stats.current_year_progressive_total:,.0f} KZT
-- <b>прошлого года:</b> {stats.previous_year_revenue:,.0f} KZT
-- <b>текущего месяца:</b> {stats.current_month_progressive_total:,.0f} KZT
-- <b>в прошлом месяце ({stats.previous_month.name} {stats.previous_month.year}):</b> {stats.previous_month.revenue:,.0f} KZT
-- <b>за тот же месяц год назад ({stats.year_ago.name} {stats.year_ago.year}):</b> {stats.year_ago.revenue:,.0f} KZT
-- <b>сегодня:</b> {stats.today_progressive_total:,.0f} KZT
+- <b>текущего года:</b> {stats.current_year_progressive_total:,.0f} {stats.currency}
+- <b>прошлого года:</b> {stats.previous_year_revenue:,.0f} {stats.currency}
+- <b>текущего месяца:</b> {stats.current_month_progressive_total:,.0f} {stats.currency}
+- <b>в прошлом месяце ({stats.previous_month.name} {stats.previous_month.year}):</b> {stats.previous_month.revenue:,.0f} {stats.currency}
+- <b>за тот же месяц год назад ({stats.year_ago.name} {stats.year_ago.year}):</b> {stats.year_ago.revenue:,.0f} {stats.currency}
+- <b>сегодня:</b> {stats.today_progressive_total:,.0f} {stats.currency}
 
 🍕 <b>Работающие пиццерии:</b> {stats.working_pizzerias}
 """
