@@ -40,7 +40,10 @@ async def handle_pizzeria_inline_search(query: types.InlineQuery):
         results = [
             InlineQueryResultArticle(
                 id=str(i),
-                title=pizzeria.name,
+                title=f'{pizzeria.alias} ({pizzeria.name})',
+                description=pizzeria.address,
+                # thumbnail_url='https://www.oxfordeagle.com/wp-content/uploads/sites/38/2020/07/Dodo-Pizza-Logo.jpg?w=960',
+                # еще думаю по поводу тамбнейла
                 input_message_content=InputTextMessageContent(
                     message_text=f"{format_pizzeria_info(pizzeria)}",
                     parse_mode='html'
