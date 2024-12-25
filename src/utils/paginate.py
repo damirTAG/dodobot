@@ -12,7 +12,7 @@ def paginate_keyboard(items, page: int, prefix: str):
 
     for item in items[start:end]:
         text = item.name
-        if isinstance(item, Pizzeria) and item.address: 
+        if isinstance(item, Pizzeria) and item.address:
             text = f"{item.name} ({item.address})"
         elif isinstance(item, PizzeriaLite) and item.address:
             text = f"{item.name} ({item.address.text})"
@@ -20,7 +20,7 @@ def paginate_keyboard(items, page: int, prefix: str):
             text=text,
             callback_data=f"{prefix}_{item.id}"
         )
-    
+
     builder.adjust(1)
 
     if len(items) > ITEMS_PER_PAGE:
@@ -28,16 +28,23 @@ def paginate_keyboard(items, page: int, prefix: str):
         if page > 0:
             navigation_buttons.append(
                 InlineKeyboardButton(
-                    text="⬅️", 
+                    text="⬅️",
                     callback_data=f"page_{prefix}_{page-1}"
                 )
             )
         if end < len(items):
             navigation_buttons.append(
                 InlineKeyboardButton(
-                    text="➡️", 
+                    text="➡️",
                     callback_data=f"page_{prefix}_{page+1}"
                 )
             )
-        builder.row(*navigation_buttons)
+        builder.row(*navigation_buttons, width=2)
+
+    if prefix != 'country':
+        builder.button(
+            text="Назад к странам",
+            callback_data="back_to_countries"
+        )
+
     return builder.as_markup()

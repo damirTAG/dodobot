@@ -37,7 +37,7 @@ async def show_pizzeria_details(callback: CallbackQuery):
     pizzeria = await dodo_api.get_pizzeria_details(int(pizzeria_id), country.code)
     
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="⬅️ Назад к странам", callback_data="back_to_countries")],
+        [InlineKeyboardButton(text="⬅️ Назад", callback_data=f"country_{country_id}")],
         [InlineKeyboardButton(text="🤑 Показать доход", callback_data=f"stats_{country_id}_{pizzeria_id}")]
     ])
     

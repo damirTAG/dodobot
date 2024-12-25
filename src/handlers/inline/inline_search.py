@@ -1,5 +1,5 @@
 from aiogram import Router, types
-from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InlineQueryResultArticle, InputTextMessageContent
 from src.services.dodo_api import DodoAPI
 from src.utils.formatting import format_pizzeria_info
 
@@ -47,7 +47,11 @@ async def handle_pizzeria_inline_search(query: types.InlineQuery):
                 input_message_content=InputTextMessageContent(
                     message_text=f"{format_pizzeria_info(pizzeria)}",
                     parse_mode='html'
-                )
+                ),
+                # reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                #     [InlineKeyboardButton(text="🤑 Показать доход", callback_data=f"stats_{pizzerias[0].country_id}_{pizzeria.id}")]
+                # ])
+                # хз как показать грамотно
             )
             for i, pizzeria in enumerate(pizzerias)
             
