@@ -38,3 +38,9 @@ class CountryFinStatsResponse(BaseModel):
     year_ago: YearAgo
     today_progressive_total: int
     working_pizzerias: int
+
+class CountryRevenue(BaseModel):
+    countryId: int
+    countryCode: str
+    currency: str
+    revenue: int

@@ -27,22 +27,34 @@ async def show_stats(callback: CallbackQuery):
         dodo_api.get_pizzeria_details(int(pizzeria_id), country.code),
         dodo_api.get_pizzeria_stats(country_id, int(pizzeria_id))
     )
-    today_stats, yesterday_stats = stats
+    today_stats, yesterday_stats, month_revenue = stats
 
     currency = get_currency(country_id, countries)
 
     builder = InlineKeyboardBuilder()
     builder.button(
         text="⬅️ Назад к пиццерии", 
-        callback_data=f"pizzeria_{country_id}_{pizzeria_id}" 
+        callback_data=f"pizzeria_{country_id}_{pizzeria_id}"
     )
+    builder.button(
+        text="📍 К списку пиццерий",
+        callback_data=f"city_{country_id}_{pizzeria_details.address_details.locality_id}"
+    )
+    builder.button(
+        text="🌍 К выбору страны",
+        callback_data="back_to_countries"
+    )
+    builder.adjust(1)
+
 
     message_text = (
         f"📊 <b>Доход пиццерии {pizzeria_details.name}:</b>\n\n"
-        "<b>📅 на сегодня:</b>\n"
-        f"{format_stats(today_stats, currency)}\n"
-        "<b>📅 прошлый день:</b>\n"
-        f"{format_stats(yesterday_stats, currency)}"
+        "<b> - на сегодня:</b>\n"
+        f"{format_stats(today_stats, currency)}\n\n"
+        "<b> - вчера:</b>\n"
+        f"{format_stats(yesterday_stats, currency)}\n\n"
+        f"<b> - за прошлый месяц:</b>\n"
+        f"💰 Выручка: {month_revenue:,.2f} {currency}"
     )
 
     await callback.message.edit_text(
