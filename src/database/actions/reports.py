@@ -35,7 +35,7 @@ async def add_subscription(
             user.pizzeria_id = pizzeria_id
             user.country_id = country_id
             user.is_active = True
-            user.active_since = datetime.utcnow()
+            user.active_since = datetime.now()
             
             await session.commit()
             await session.refresh(user)

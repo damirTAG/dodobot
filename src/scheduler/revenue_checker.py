@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from aiogram import Bot
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from src.database.models import User
+from src.database.models.User import User
 from src.services.dodo_api import DodoAPI
 from src.models.revenue import CountryRevenue
 from src.utils.formatting import get_currency_from_country_code
@@ -42,20 +42,25 @@ class RevenueChecker:
                 if not revenue or not revenue[0].metrics:
                     return None
 
-                total_revenue = sum(
-                    metric.revenue
-                    for country in revenue
-                    for metric in country.metrics
-                    if metric.unitId == pizzeria_id
-                )
+                # total_revenue = sum(
+                #     metric.revenue
+                #     for country in revenue
+                #     for metric in country.metrics
+                #     if metric.unitId == pizzeria_id
+                # )
                 
-                return total_revenue
+                return revenue
 
         except Exception as e:
             logger.error(f"Error getting revenue for pizzeria {pizzeria_id}: {e}")
             return None
 
     async def _format_message(self, revenue_data: CountryRevenue) -> str:
+        if isinstance(revenue_data, list):
+            if not revenue_data:
+                return "No revenue data available"
+            revenue_data = revenue_data[0]
+
         if not revenue_data.metrics:
             return "No revenue data available"
             
@@ -109,18 +114,18 @@ class RevenueChecker:
         logger.info("Starting revenue check for all active users")
         async with self.session_maker() as session:
             try:
-                query = select(User).where(User.is_active == True)
+                query = select(User).filter(User.is_active == True)
                 result = await session.execute(query)
                 users = result.scalars().all()
 
                 for user in users:
                     try:
-                        revenue = await self._get_revenue_data(user.pizzeria_id)
+                        revenue = await self._get_revenue_data(user.country_id, user.pizzeria_id)
                         if revenue is None:
                             logger.warning(f"No revenue data for user {user.telegram_id}")
                             continue
 
-                        message = await self._format_message(user, revenue)
+                        message = await self._format_message(revenue)
                         success = await self._notify_user(user, message)
 
                         if not success:
@@ -140,7 +145,7 @@ class RevenueChecker:
             except Exception as e:
                 logger.error(f"Error in revenue check main loop: {e}")
 
-    def setup_scheduler(self, hour: int = 0, minute: int = 0):
+    def setup_scheduler(self, hour: int = 1, minute: int = 2):
         try:
             self.scheduler.add_job(
                 self.check_and_send_revenue,

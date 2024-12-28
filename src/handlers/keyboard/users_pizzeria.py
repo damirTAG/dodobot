@@ -1,6 +1,7 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 from datetime import datetime
+from pytz import timezone
 from src.services.dodo_api import DodoAPI
 
 from src.database.actions.user import get_user
@@ -37,7 +38,10 @@ async def user_following_pizzeria(callback: CallbackQuery):
             active_since_date = datetime.combine(user.active_since, datetime.min.time())
 
         formatted_date = active_since_date.strftime("%Yг. %d %b")
-        days_following = (datetime.now() - active_since_date).days
+        if active_since_date.tzinfo is None:
+            tz = timezone('Asia/Oral')
+            active_since_date = tz.localize(active_since_date)
+        days_following = (datetime.now(timezone('Asia/Oral')) - active_since_date).days
 
         message = (
             f'Отслеживаемая пиццерия {pizzeria_info["countryName"]}, {pizzeria_info["pizzeria"]["alias"]}, '

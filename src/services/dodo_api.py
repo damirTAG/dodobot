@@ -71,46 +71,24 @@ class DodoAPI:
             month: int, 
             day: int
         ) -> Optional[List[CountryRevenue]]:
-            """
-            Fetch daily revenue data for a specific pizzeria
-            
-            Args:
-                country_id: Country identifier
-                unit_id: Pizzeria unit identifier
-                year: Year for revenue data
-                month: Month for revenue data
-                day: Day for revenue data
-                
-            Returns:
-                List of CountryRevenue objects or None if request fails
-            """
-            url = f"{self.global_url}revenue/pizzeria/{country_id}/{unit_id}/daily/{year}/{month}/{day}"
-            
-            try:
-                async with aiohttp.ClientSession(headers=self.headers) as session:
-                    async with session.get(url) as response:
-                        if response.status != 200:
-                            print(
-                                f"Failed to fetch revenue data: {response.status} - {await response.text()}"
-                            )
-                            return None
-                            
-                        data = await response.json()
-                        revenue_data = RevenueResponse(**data)
-                        
-                        if revenue_data.errors:
-                            print(
-                                f"Received errors in revenue data: {revenue_data.errors}"
-                            )
-                        
-                        return revenue_data.countries
+        url = f"{self.global_url}revenue/pizzeria/{country_id}/{unit_id}/daily/{year}/{month}/{day}"
+        
+        try:
+            async with aiohttp.ClientSession(headers=self.headers) as session:
+                async with session.get(url) as response:
+                    if response.status != 200:
+                        print(f"Failed to fetch revenue data: {response.status} - {await response.text()}")
+                        return None
+                    
+                    data = await response.json()
+                    countries = data.get('countries', [])
 
-            except aiohttp.ClientError as e:
-                print(f"HTTP request failed: {str(e)}")
-                return None
-            except Exception as e:
-                print(f"Unexpected error fetching revenue: {str(e)}")
-                return None
+                    revenue_data = [CountryRevenue(**country) for country in countries]
+                    
+                    return revenue_data
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return None
 
 
     @cached(ttl=3600)
