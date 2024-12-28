@@ -27,13 +27,14 @@ class DatabaseManager:
             DATABASE_URL = os.getenv("DATABASE_URL")
 
             try:
-                conn = await asyncpg.connect(
-                    user=DB_USER,
-                    password=DB_PASS,
-                    database=DB_NAME,
-                    host=DB_HOST,
-                    port=DB_PORT
-                )
+                conn = await asyncpg.connect(DATABASE_URL)
+                # conn = await asyncpg.connect(
+                #     user=DB_USER,
+                #     password=DB_PASS,
+                #     database=DB_NAME,
+                #     host=DB_HOST,
+                #     port=DB_PORT
+                # )
                 await conn.close()
             except Exception as e:
                 logger.error(f"Failed to connect to database: {str(e)}")
