@@ -145,7 +145,7 @@ class RevenueChecker:
             except Exception as e:
                 logger.error(f"Error in revenue check main loop: {e}")
 
-    def setup_scheduler(self, hour: int = 1, minute: int = 2):
+    def setup_scheduler(self, hour: int = 0, minute: int = 0):
         try:
             self.scheduler.add_job(
                 self.check_and_send_revenue,
