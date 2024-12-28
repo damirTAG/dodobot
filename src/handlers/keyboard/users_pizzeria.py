@@ -27,15 +27,22 @@ async def user_following_pizzeria(callback: CallbackQuery):
             await callback.message.answer("Информация о пиццерии не найдена.")
             return
         
-        active_since_date = user.active_since
-        formatted_date = active_since_date.strftime("%Yг. %d %b.")
+        if isinstance(pizzeria_data, list) and len(pizzeria_data) > 0:
+            pizzeria_info = pizzeria_data[0]
+        else:
+            pizzeria_info = pizzeria_data 
+        if isinstance(user.active_since, datetime):
+            active_since_date = user.active_since
+        else:
+            active_since_date = datetime.combine(user.active_since, datetime.min.time())
+
+        formatted_date = active_since_date.strftime("%Yг. %d %b")
         days_following = (datetime.now() - active_since_date).days
 
         message = (
-            f'Отслеживаемая пиццерия {pizzeria_data['pizzeria']['alias']},'
-            f'по адресу {pizzeria_data['pizzeria']['address']['text']}'
-            f'\nСтрана {pizzeria_data['countryName']}'
-            f"За этой точкой ты следишь с {formatted_date} ({days_following} дней)"
+            f'Отслеживаемая пиццерия {pizzeria_info["countryName"]}, {pizzeria_info["pizzeria"]["alias"]}, '
+            f'по адресу {pizzeria_info["pizzeria"]["address"]["text"]}'
+            f"\n\nЗа этой точкой ты следишь с {formatted_date} ({days_following} дней) "
             f"\n\nЧтобы перестать отслеживать - /stop"
         )
-        await callback.message.answer(message)
+        await m.answer(message)
