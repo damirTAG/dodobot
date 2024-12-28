@@ -17,24 +17,22 @@ class DatabaseManager:
         
     async def init_database(self):
         try:
-            DB_USER = os.getenv("DB_USER", "postgres")
-            DB_PASS = os.getenv("DB_PASSWORD", "postgres")
-            DB_HOST = os.getenv("DB_HOST", "localhost")
-            DB_PORT = os.getenv("DB_PORT", "5432")
-            DB_NAME = os.getenv("DB_NAME", "dodobot")
+            DB_USER = os.getenv("PGUSER", "postgres")
+            DB_PASS = os.getenv("PGPASSWORD", "postgres")
+            DB_HOST = os.getenv("PGHOST", "localhost")
+            DB_PORT = os.getenv("PGPORT", "5432")
+            DB_NAME = os.getenv("PGNAME", "dodobot")
 
-            # DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-            DATABASE_URL = os.getenv("DATABASE_URL")
+            DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
             try:
-                conn = await asyncpg.connect(DATABASE_URL)
-                # conn = await asyncpg.connect(
-                #     user=DB_USER,
-                #     password=DB_PASS,
-                #     database=DB_NAME,
-                #     host=DB_HOST,
-                #     port=DB_PORT
-                # )
+                conn = await asyncpg.connect(
+                    user=DB_USER,
+                    password=DB_PASS,
+                    database=DB_NAME,
+                    host=DB_HOST,
+                    port=DB_PORT
+                )
                 await conn.close()
             except Exception as e:
                 logger.error(f"Failed to connect to database: {str(e)}")
