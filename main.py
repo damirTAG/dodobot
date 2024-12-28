@@ -1,19 +1,23 @@
 import asyncio
+from src.setup import BotApp
 import logging
-from aiogram import Bot, Dispatcher
-from dotenv import load_dotenv
-import os
-from src.handlers import register_handlers
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 async def main():
-    load_dotenv()
-    bot = Bot(token=os.getenv("BOT_TOKEN"))
-    dp = Dispatcher()
-    
-    register_handlers(dp)
-    
-    await dp.start_polling(bot)
+    app = BotApp()
+    try:
+        await app.start()
+    except Exception as e:
+        logger.error(f"Application error: {e}")
+        raise
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("Bot stopped!")

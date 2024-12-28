@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 class Revenue(BaseModel):
     countryId: int
@@ -39,8 +39,33 @@ class CountryFinStatsResponse(BaseModel):
     today_progressive_total: int
     working_pizzerias: int
 
+class MetricsData(BaseModel):
+    unitId: int
+    revenue: float
+    count: int
+    stationaryRevenue: float
+    stationaryCount: int
+    deliveryRevenue: float
+    deliveryCount: int
+    pickupRevenue: float
+    pickupCount: int
+    stationaryMobileRevenue: float
+    stationaryMobileCount: int
+    deliveryMobileRevenue: float
+    deliveryMobileCount: int
+    pickupMobileRevenue: float
+    pickupMobileCount: int
+
 class CountryRevenue(BaseModel):
     countryId: int
     countryCode: str
-    currency: str
-    revenue: int
+    metrics: List[MetricsData]
+
+class ErrorData(BaseModel):
+    countryId: int
+    countryCode: str
+
+class CountryRevenueResponse(BaseModel):
+    countries: List[CountryRevenue]
+    errors: Optional[List[ErrorData]] = None
+    day: str

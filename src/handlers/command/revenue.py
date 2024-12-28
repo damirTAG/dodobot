@@ -5,8 +5,6 @@ from aiogram.types import BufferedInputFile
 from src.services.dodo_api import DodoAPI
 from src.utils.graph import generate_revenue_chart
 
-from io import BytesIO
-
 router = Router()
 dodo_api = DodoAPI()
 
@@ -20,7 +18,7 @@ async def total_last_month_revenue(message: types.Message):
 
     chart_image = generate_revenue_chart(total_revenue)
     # print(chart_image)
-    chart_bytes = chart_image.getvalue()
+    chart_bytes = chart_image.getvalue() 
     chart_file = BufferedInputFile(chart_bytes, filename="revenue_chart.png")
 
     await message.answer_photo(

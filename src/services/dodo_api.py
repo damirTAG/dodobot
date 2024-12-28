@@ -5,10 +5,11 @@ import os
 from aiocache import Cache, cached
 
 from dotenv import load_dotenv
-from typing import List
+from typing import List, Optional
 
 from src.models.basic import Country, City, Pizzeria, PizzeriaLite
-from src.models.revenue import Revenue, CountryFinStatsResponse, CountryRevenue
+from src.models.revenue import Revenue, CountryFinStatsResponse, CountryRevenue, RevenueResponse
+from src.models.employee import Employee
 
 cache = Cache.from_url("memory://")
 
@@ -59,6 +60,58 @@ class DodoAPI:
                 data = [CountryRevenue(**country) for country in countries]
                 await cache.set(cache_key, data)
                 return data
+
+    # Daily revenue
+    # 
+    async def get_daily_revenue(
+            self, 
+            country_id: int, 
+            unit_id: int, 
+            year: int, 
+            month: int, 
+            day: int
+        ) -> Optional[List[CountryRevenue]]:
+            """
+            Fetch daily revenue data for a specific pizzeria
+            
+            Args:
+                country_id: Country identifier
+                unit_id: Pizzeria unit identifier
+                year: Year for revenue data
+                month: Month for revenue data
+                day: Day for revenue data
+                
+            Returns:
+                List of CountryRevenue objects or None if request fails
+            """
+            url = f"{self.global_url}revenue/pizzeria/{country_id}/{unit_id}/daily/{year}/{month}/{day}"
+            
+            try:
+                async with aiohttp.ClientSession(headers=self.headers) as session:
+                    async with session.get(url) as response:
+                        if response.status != 200:
+                            print(
+                                f"Failed to fetch revenue data: {response.status} - {await response.text()}"
+                            )
+                            return None
+                            
+                        data = await response.json()
+                        revenue_data = RevenueResponse(**data)
+                        
+                        if revenue_data.errors:
+                            print(
+                                f"Received errors in revenue data: {revenue_data.errors}"
+                            )
+                        
+                        return revenue_data.countries
+
+            except aiohttp.ClientError as e:
+                print(f"HTTP request failed: {str(e)}")
+                return None
+            except Exception as e:
+                print(f"Unexpected error fetching revenue: {str(e)}")
+                return None
+
 
     @cached(ttl=3600)
     async def get_countries(self) -> List[Country]:
@@ -134,6 +187,20 @@ class DodoAPI:
 
                 await cache.set(cache_key, pizzeria)
                 return pizzeria
+            
+    async def get_pizzeria_details_global(self, country_id, pizzeria_id):
+        cache_key = f"pizzeria:{country_id}:{pizzeria_id}"
+        cached_data = await cache.get(cache_key)
+
+        if cached_data:
+            return cached_data
+        async with aiohttp.ClientSession(headers=self.headers) as session:
+            async with session.get(f"{self.global_url}pizzerias/unit/{country_id}/{pizzeria_id}") as resp:
+                data = await resp.json()
+                pizzeria = data['countries']
+
+                await cache.set(cache_key, pizzeria)
+                return pizzeria
     
     async def get_pizzeria_stats(self, country_id: int, pizzeria_id: int) -> tuple[Revenue, Revenue, float]:
         async with aiohttp.ClientSession(headers=self.headers) as session:
@@ -152,3 +219,43 @@ class DodoAPI:
             month_revenue = month_data['countries'][0]['monthes'][0]['revenue']
 
             return today_revenue, yesterday_revenue, month_revenue
+
+    @cached(ttl=3600)
+    async def get_top_products_month(
+        self, 
+        country_code: str, 
+        start_date: str, 
+        end_date: str
+        ):
+        cache_key = f"products_top:{country_code}"
+        cached_data = await cache.get(cache_key)
+
+        if cached_data:
+            return cached_data
+        async with aiohttp.ClientSession(headers=self.headers) as session:
+            async with session.get(f"{self.base_url}/{country_code}/api/v1/products/top?start={start_date}&end={end_date}") as resp: 
+                data = resp.json()
+                await cache.set(cache_key, data)
+                return data
+    # Employees
+    # https://publicapi.dodois.io/{country_code}/api/v1/AllEmployeesOnShift/{unitid}
+    @cached(ttl=4600)
+    async def get_employee_onshift(self, country_code: str, unitid: int) -> List[Employee]:
+        cache_key = f"employees:{country_code}:{unitid}"
+        cached_data = await cache.get(cache_key)
+
+        if cached_data:
+            return cached_data
+        async with aiohttp.ClientSession(headers=self.headers) as session:
+            async with session.get(f"{self.base_url}/{country_code}/api/v1/EmployeesOnShift/{id}") as resp:
+                data = await resp.json()
+                emp = [
+                    Employee(
+                        **employees
+                    )
+                    for employees in data
+                ]
+
+                await cache.set(cache_key, emp)
+
+                return emp

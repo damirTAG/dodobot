@@ -121,7 +121,19 @@ def format_revenue(countries: List[CountryRevenue]):
 
         revenue = locale.format_string("%d", country.revenue, grouping=True)
         formatted_revenue.append(
-            f"{country_emoji} {country_name}: {revenue} {country.currency}"
+            f"{country_emoji} {country_name}: {revenue:,.2f} {country.currency}"
         )
 
     return "\n".join(formatted_revenue)
+
+def get_currency_from_country_code(country_code: str) -> str:
+    try:
+        country = pycountry.countries.get(alpha_2=country_code.upper())
+        if not country:
+            return "UNKNOWN"
+
+        currency = pycountry.currencies.get(numeric=country.numeric)
+        return currency.alpha_3 if currency else "UNKNOWN"
+    except Exception as e:
+        print(f"Ошибка при получении валюты для страны {country_code}: {e}")
+        return "UNKNOWN"
