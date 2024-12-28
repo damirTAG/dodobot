@@ -38,9 +38,9 @@ async def user_following_pizzeria(callback: CallbackQuery):
             active_since_date = datetime.combine(user.active_since, datetime.min.time())
 
         formatted_date = active_since_date.strftime("%Yг. %d %b")
-        if active_since_date.tzinfo is None:
-            tz = timezone('Asia/Oral')
-            active_since_date = tz.localize(active_since_date)
+        
+        tz = timezone('Asia/Oral')
+        active_since_date = tz.localize(active_since_date)
         days_following = (datetime.now(timezone('Asia/Oral')) - active_since_date).days
 
         message = (
