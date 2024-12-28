@@ -15,11 +15,11 @@ async def user_favorite_handler(m: types.Message):
     async for session in db_manager.get_session():
         user = await get_user(session, user_id)
         if not user:
-            await m.answer("Пользователь не найден.")
+            await m.answer("У тебя нет любимой пиццерии, для начала выбери пиццерию")
             return
 
         if not user.pizzeria_id:
-            await m.answer("Пиццерия не указана.")
+            await m.answer("У тебя нет любимой пиццерии, для начала выбери пиццерию")
             return
 
         pizzeria_data = await dodo_api.get_pizzeria_details_global(user.country_id, user.pizzeria_id)

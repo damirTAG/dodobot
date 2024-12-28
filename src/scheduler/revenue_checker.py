@@ -11,6 +11,7 @@ from src.services.dodo_api import DodoAPI
 from src.models.revenue import CountryRevenue
 from src.utils.formatting import get_currency_from_country_code
 from typing import Optional
+from pytz import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ class RevenueChecker:
         self.bot = bot
         self.session_maker = session_maker
         self.dodo_api = dodo_api
-        self.scheduler = AsyncIOScheduler()
+        self.scheduler = AsyncIOScheduler(timezone=timezone('Asia/Oral'))
         self._running = False
 
     async def _get_revenue_data(self, country_id: int, pizzeria_id: str) -> Optional[float]:
