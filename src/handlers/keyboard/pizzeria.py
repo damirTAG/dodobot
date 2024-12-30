@@ -12,11 +12,15 @@ dodo_api = DodoAPI()
 
 @router.callback_query(F.data.startswith("page_pizzeria_"))
 async def process_pizzeria_page(callback: CallbackQuery):
-    _, _, country_id, city_id, page = callback.data.split("_")
-    country = next(c for c in await dodo_api.get_countries() if c.id == int(country_id))
+    _, _, country_id, page = callback.data.split("_")
     
-    cities = await dodo_api.get_cities(country.code)
-    selected_city = next(city for city in cities if str(city.id) == city_id)
+    # TODO:
+    # Fix issue with pizzeria selecting,
+    # when user looking for pizzeria in city,
+    # and it shows full list of pizzeria from this country
+    # country = next(c for c in await dodo_api.get_countries() if c.id == int(country_id))
+    # cities = await dodo_api.get_cities(country.code)
+    # selected_city = next(city for city in cities if str(city.id) == city_id)
     
     pizzerias = await dodo_api.get_pizzerias_by_name(int(country_id))
     keyboard = paginate.paginate_keyboard(pizzerias, int(page), f"pizzeria_{country_id}")

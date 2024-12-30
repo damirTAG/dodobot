@@ -30,7 +30,7 @@ class RevenueChecker:
 
     async def _get_revenue_data(self, country_id: int, pizzeria_id: str) -> Optional[float]:
         try:
-            today = datetime.now()
+            today = datetime.today()
             revenue = await self.dodo_api.get_daily_revenue(
                 country_id, 
                 pizzeria_id,
@@ -39,6 +39,7 @@ class RevenueChecker:
                 today.day
                 )
             if revenue is not None:
+                print(revenue)
                 if not revenue or not revenue[0].metrics:
                     return None
 
@@ -145,11 +146,15 @@ class RevenueChecker:
             except Exception as e:
                 logger.error(f"Error in revenue check main loop: {e}")
 
-    def setup_scheduler(self, hour: int = 0, minute: int = 0):
+    def setup_scheduler(self, hour: int = 0, minute: int = 0, timezone = timezone('Asia/Oral')):
         try:
             self.scheduler.add_job(
                 self.check_and_send_revenue,
-                trigger=CronTrigger(hour=hour, minute=minute),
+                trigger=CronTrigger(
+                    hour=hour, 
+                    minute=minute, 
+                    timezone=timezone
+                    ),
                 id='revenue_checker',
                 replace_existing=True,
                 misfire_grace_time=3600
