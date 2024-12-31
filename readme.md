@@ -1,11 +1,32 @@
-# DodoIS Telegram Bot
+# Telegram-бот DodoIS
 
-A Telegram bot built for developers that integrates with the DodoIS API to fetch and display data related to pizzerias. This bot allows you to view pizzeria stats, working hours, financial information, and more.
+Телеграм-бот для получения информации о пиццериях Dodo Pizza с использованием старого публичного API Dodo IS.
 
-## Features
+## Стек
 
--   Retrieve pizzeria details, including working hours, revenue, and financial metrics.
--   Get stats for today and the previous day.
--   Supports searching for pizzerias by country and name.
--   Inline mode to interact with the bot directly from any chat.
--   Caching support for efficient data retrieval.
+-   **Фреймворк бота**: `aiogram`
+-   **База данных**: `PostgreSQL` с использованием `AsyncPG` и `SQLAlchemy`
+-   **Запросы к API**: `aiohttp`
+-   **Кэширование**: `aiocache`
+-   **Планировщик**: `APScheduler`
+
+## Установка и запуск
+
+1. **Клонирование репозитория**  
+   Склонируйте репозиторий проекта:
+    ```bash
+    gh repo clone damirTAG/dodobot
+    cd <куда сохранили>
+    ```
+2. **.env файл**  
+   Создайте файл `.env`, указав в нём все параметры, описанные в `.env.example`.
+   Обязательно создайте базу данных в PostgreSQL и правильно укажите имя базы данных в переменной `PGNAME`.
+
+3. **Установка зависимостей**
+    ```bash
+    pip install -r requirements.txt
+    ```
+4. **Запуск**
+    ```bash
+    python main.py
+    ```

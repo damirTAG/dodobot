@@ -2,7 +2,7 @@ from src.models.basic import Pizzeria
 from src.models.revenue import Revenue, CountryFinStatsResponse, CountryRevenue
 
 from itertools import groupby
-from typing import List
+from typing import List, Dict, Any
 
 # def format_country_info(country: Country) -> str:
 #     return f"""
@@ -137,3 +137,77 @@ def get_currency_from_country_code(country_code: str) -> str:
     except Exception as e:
         print(f"Ошибка при получении валюты для страны {country_code}: {e}")
         return "UNKNOWN"
+    
+def format_admin_statistics_response(data: Dict[str, Any]) -> str:
+    response = [
+        f"👥 *Total Users:* {data['counts']['total']}",
+        f"✅ *Active Users:* {data['counts']['active']}",
+        f"❌ *Inactive Users:* {data['counts']['inactive']}\n",
+        
+        "*Recent Activity:*",
+        f"• Day: {data['activity']['day']['active_users']} active, {data['activity']['day']['new_users']} new",
+        f"• Week: {data['activity']['week']['active_users']} active, {data['activity']['week']['new_users']} new",
+        f"• Month: {data['activity']['month']['active_users']} active, {data['activity']['month']['new_users']} new\n",
+
+    ]
+    
+    if data['distribution']['countries']:
+        response.extend([
+            "*Country Distribution:*"
+        ])
+        for country_id, count in data['distribution']['countries'].items():
+            percentage = (count / data['counts']['total']) * 100
+            response.append(f"• Country {country_id}: {count} users ({percentage:.1f}%)")
+        response.append("")
+
+    if data['distribution']['pizzerias']:
+        response.extend([
+            "*Top Pizzerias:*"
+        ])
+        # Show top 5 pizzerias
+        top_pizzerias = sorted(
+            data['distribution']['pizzerias'].items(),
+            key=lambda x: x[1],
+            reverse=True
+        )[:5]
+        for pizzeria_id, count in top_pizzerias:
+            percentage = (count / data['counts']['total']) * 100
+            response.append(f"• Pizzeria {pizzeria_id}: {count} users ({percentage:.1f}%)")
+        response.append("")
+
+    # Add notification statistics
+    response.extend([
+        "*Notification Statistics:*",
+        f"• Average Failed: {data['notifications']['average_failed']}",
+        f"• Max Failed: {data['notifications']['max_failed']}",
+        f"• Users with Failures: {data['notifications']['users_with_failures']}\n",
+        
+        "*Notification Time Distribution:*"
+    ])
+    
+    # Format time distribution in 4-hour blocks for readability
+    time_dist = data['notifications']['time_distribution']
+    time_blocks = {
+        "Night (00-04)": sum(time_dist.get(str(h), 0) for h in range(0, 4)),
+        "Early Morning (04-08)": sum(time_dist.get(str(h), 0) for h in range(4, 8)),
+        "Morning (08-12)": sum(time_dist.get(str(h), 0) for h in range(8, 12)),
+        "Afternoon (12-16)": sum(time_dist.get(str(h), 0) for h in range(12, 16)),
+        "Evening (16-20)": sum(time_dist.get(str(h), 0) for h in range(16, 20)),
+        "Night (20-24)": sum(time_dist.get(str(h), 0) for h in range(20, 24))
+    }
+    
+    for block, count in time_blocks.items():
+        if count > 0:  # Only show blocks with users
+            percentage = (count / data['counts']['total']) * 100
+            response.append(f"• {block}: {count} users ({percentage:.1f}%)")
+    response.append("")
+
+    # Add retention statistics
+    response.extend(["*Retention Rates:*"])
+    for period, stats in data['retention'].items():
+        if stats['total'] > 0:  # Only show periods with data
+            response.append(
+                f"• {period.title()}: {stats['rate']}% ({stats['retained']}/{stats['total']} users)"
+            )
+
+    return "\n".join(response)

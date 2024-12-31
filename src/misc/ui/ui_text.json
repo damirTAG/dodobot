@@ -1,0 +1,28 @@
+{
+    "commands": {
+        "start": {
+            "command": "start",
+            "description": "Start the bot",
+            "text": {
+                "greeting": "Приветствую!\nЯ бот который покажет вам информацию о вашей любимой точке додо пицце.",
+                "instructions": "\n\nИспользуйте команду /search\nПример: /search ru томск",
+                "inline_mode": "\nТакже доступен инлайн-мод: <code>@DodoIS_simplebot kz алматы</code>",
+                "select_country": "\n\nЛибо выберите страну:"
+            }
+        },
+        "search": {
+            "command": "search",
+            "description": "Search for pizzerias",
+            "text": {
+                "format": "/search <country_code> <city>",
+                "example": "Example: /search ru moscow"
+            }
+        },
+        "help": {}
+    },
+    "errors": {
+        "not_found": "Not found",
+        "invalid_format": "Invalid format",
+        "try_again": "Please try again"
+    }
+}

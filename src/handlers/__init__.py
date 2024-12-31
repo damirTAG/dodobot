@@ -14,6 +14,7 @@ from .keyboard import (
     users_pizzeria
 )
 from .inline import inline_search
+from .admin import core
 
 def register_handlers(dp: Dispatcher):
     dp.include_router(country.router)
@@ -28,3 +29,5 @@ def register_handlers(dp: Dispatcher):
     dp.include_router(stop_report.router)
 
     dp.include_router(inline_search.router)
+    
+    dp.include_router(core.router)
