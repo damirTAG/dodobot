@@ -5,7 +5,8 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from src.database.models.User import User
 from src.utils.logger import logger
 
-from typing import Optional
+from typing import Optional, List
+
 
 async def get_user(
     session: AsyncSession,
@@ -23,6 +24,23 @@ async def get_user(
         raise
     except Exception as e:
         logger.error(f"Unexpected error while fetching user: {str(e)}")
+        await session.rollback()
+        raise
+
+async def get_all_users(
+    session: AsyncSession
+) -> List[Optional[User]]:
+    try:
+        query = select(User)
+        result = await session.execute(query)
+
+        return result.scalars().all()
+    except SQLAlchemyError as e:
+        logger.error(f"Error fetching userS: {str(e)}")
+        await session.rollback()
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error while fetching userS: {str(e)}")
         await session.rollback()
         raise
 

@@ -2,6 +2,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton
 
 from src.models.basic import Pizzeria, PizzeriaLite
+from src.database.models.User import User
 
 ITEMS_PER_PAGE = 8
 
@@ -11,14 +12,21 @@ def paginate_keyboard(items, page: int, prefix: str, country_id: int = None, cit
     end = start + ITEMS_PER_PAGE
 
     for item in items[start:end]:
-        text = item.name
         if isinstance(item, Pizzeria) and item.address:
             text = f"{item.address}"
+            callback_data=f"{prefix}_{item.id}"
         elif isinstance(item, PizzeriaLite) and item.address:
             text = f"{item.address.text}"
+            callback_data=f"{prefix}_{item.id}"
+        elif isinstance(item, User) and item.telegram_id:
+            text = f"{item.telegram_id}"
+            callback_data=f"{prefix}_{item.telegram_id}"
+        else:
+            text = item.name
+            callback_data=f"{prefix}_{item.id}"
         builder.button(
             text=text,
-            callback_data=f"{prefix}_{item.id}"
+            callback_data=callback_data
         )
 
     builder.adjust(2)
@@ -41,7 +49,7 @@ def paginate_keyboard(items, page: int, prefix: str, country_id: int = None, cit
             )
         builder.row(*navigation_buttons, width=2)
 
-    if prefix != 'country':
+    if prefix not in  ['country', 'user', 'users']:
         if prefix == 'pizzeria' and city_id is not None:
             builder.button(
                 text="К выбору пиццерии",
