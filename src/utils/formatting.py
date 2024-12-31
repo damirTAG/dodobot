@@ -119,9 +119,9 @@ def format_revenue(countries: List[CountryRevenue]):
         country_name = country_data.name if country_data else "Неизвестная страна"
         country_emoji = flag.flag(country.countryCode) if country_data else "🏳️"
 
-        revenue = locale.format_string("%d", country.revenue, grouping=True)
+        # revenue = locale.format_string("%d", country.revenue, grouping=True)
         formatted_revenue.append(
-            f"{country_emoji} {country_name}: {revenue:,.2f} {country.currency}"
+            f"{country_emoji} {country_name}: {country.revenue:,.2f} {country.currency}"
         )
 
     return "\n".join(formatted_revenue)

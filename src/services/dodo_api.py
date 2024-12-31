@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from typing import List, Optional
 
 from src.models.basic import Country, City, Pizzeria, PizzeriaLite
-from src.models.revenue import Revenue, CountryFinStatsResponse, CountryRevenue, RevenueResponse
+from src.models.revenue import Revenue, CountryFinStatsResponse, CountryRevenue, CountriesRevenue
 from src.models.employee import Employee
 
 cache = Cache.from_url("memory://")
@@ -47,7 +47,7 @@ class DodoAPI:
         ]
 
     @cached(ttl=120)
-    async def get_total_revenue_last_month(self) -> List[CountryRevenue]:
+    async def get_total_revenue_last_month(self) -> List[CountriesRevenue]:
         cache_key = "total_revenue"
         cached_data = await cache.get(cache_key)
 
@@ -57,7 +57,7 @@ class DodoAPI:
             async with session.get(f"{self.global_url}revenue/monthes/last") as resp:
                 data = await resp.json()
                 countries = data.get("countries", [])
-                data = [CountryRevenue(**country) for country in countries]
+                data = [CountriesRevenue(**country) for country in countries]
                 await cache.set(cache_key, data)
                 return data
 

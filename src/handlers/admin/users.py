@@ -3,6 +3,7 @@ from aiogram.types import Message
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.methods.get_chat import GetChat
 
 from src.database.actions.user import get_all_users, get_user
 from src.database.base import db_manager
@@ -31,7 +32,6 @@ async def list_users(message: Message):
 
 
 @router.callback_query(lambda c: c.data.startswith("user_"))
-@admin_only_callback()
 async def show_user_details(callback: CallbackQuery):
     telegram_id = int(callback.data.split("_")[1])
     # print(telegram_id)
@@ -39,6 +39,7 @@ async def show_user_details(callback: CallbackQuery):
     async for session in db_manager.get_session():
         try:
             user = await get_user(session, telegram_id)
+            # full_name = await 
 
             if not user:
                 await callback.message.edit_text("Пользователь не найден.")
@@ -53,6 +54,7 @@ async def show_user_details(callback: CallbackQuery):
             user_details = (
                 f"ID: {user.id}\n"
                 f"Telegram ID: {user.telegram_id}\n"
+                # f"Full name: {full_name}\n"
                 f"Country ID: {user.country_id}\n"
                 f"Pizzeria ID: {user.pizzeria_id}\n"
                 f"Active: {'Yes' if user.is_active else 'No'}\n"
@@ -67,7 +69,7 @@ async def show_user_details(callback: CallbackQuery):
 
         except Exception as e:
             await callback.message.edit_text("Ошибка при получении данных пользователя.")
-            logger.error(f"SQLAlchemyError: {e}")
+            logger.error(f"Error users: {e}")
 
 @router.callback_query(F.data.startswith("page_user_"))
 async def process_city_page(callback: CallbackQuery):

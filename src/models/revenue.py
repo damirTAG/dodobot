@@ -69,3 +69,9 @@ class CountryRevenueResponse(BaseModel):
     countries: List[CountryRevenue]
     errors: Optional[List[ErrorData]] = None
     day: str
+
+class CountriesRevenue(BaseModel):
+    countryId: int
+    countryCode: str
+    currency: str
+    revenue: int
