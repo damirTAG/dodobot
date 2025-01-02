@@ -49,4 +49,4 @@ async def user_following_pizzeria(callback: CallbackQuery):
             f"\n\nЗа этой точкой ты следишь с {formatted_date} ({days_following} дней) "
             f"\n\nЧтобы перестать отслеживать - /stop"
         )
-        await message.answer(message)
+        await callback.message.answer(message)

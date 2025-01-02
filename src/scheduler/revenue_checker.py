@@ -83,7 +83,7 @@ class RevenueChecker:
         builder = InlineKeyboardBuilder()
         builder.button(
             text="Меню отслеживания",
-            callback_data=f"userfollowingpizzeria"
+            callback_data="userfollowingpizzeria"
         )
         return builder
 
