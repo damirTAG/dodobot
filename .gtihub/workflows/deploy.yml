@@ -1,0 +1,34 @@
+name: Deploy Bot to VPS
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    deploy:
+        name: Build & Deploy to VPS
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Set up SSH
+              uses: webfactory/ssh-agent@v0.8.0
+              with:
+                  ssh-private-key: ${{ secrets.GER_AEZA_SSH_KEY }}
+
+            - name: Copy project to VPS
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ secrets.GER_AEZA_VPS_USER }}@${{ secrets.GER_AEZA_VPS_HOST }} "mkdir -p ~/opt/dodobot"
+                  rsync -avz --exclude='.env' --exclude='.git' ./ ${{ secrets.GER_AEZA_VPS_USER }}@${{ secrets.GER_AEZA_VPS_HOST }}:~/opt/dodobot/
+
+            - name: Deploy on VPS
+              run: |
+                  ssh ${{ secrets.GER_AEZA_VPS_USER }}@${{ secrets.GER_AEZA_VPS_HOST }} << 'EOF'
+                    cd ~/opt/dodobot
+                    docker-compose down
+                    docker-compose pull || true
+                    docker-compose up --build -d
+                  EOF

@@ -7,7 +7,8 @@ from sqlalchemy import (
     BigInteger, 
     ForeignKey,
     DateTime, 
-    Time)
+    Time
+)
 from sqlalchemy.sql import func
 from src.database.base import Base
 
