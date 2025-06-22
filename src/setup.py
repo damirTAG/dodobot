@@ -59,7 +59,7 @@ class BotApp:
             logger.error(f"Error during shutdown: {e}")
 
     async def start(self):
-        self.bot = Bot(token=os.getenv("TEST_BOT_TOKEN"))
+        self.bot = Bot(token=os.getenv("BOT_TOKEN"))
         self.dp = Dispatcher()
         
         self.dp.startup.register(self.on_startup)
