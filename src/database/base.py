@@ -19,7 +19,7 @@ class DatabaseManager:
         try:
             DB_USER = os.getenv("PGUSER", "postgres")
             DB_PASS = os.getenv("PGPASSWORD", "postgres")
-            DB_HOST = os.getenv("PGHOST", "localhost")
+            DB_HOST = os.getenv("PGHOST", "db")
             DB_PORT = os.getenv("PGPORT", "5432")
             DB_NAME = os.getenv("PGNAME", "dodobot")
 

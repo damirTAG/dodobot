@@ -16,8 +16,7 @@ async def total_last_month_revenue(message: types.Message):
         await message.answer("❌ Данных о доходах за прошлый месяц нет.")
         return
 
-    chart_image = generate_revenue_chart(total_revenue)
-    # print(chart_image)
+    chart_image = await generate_revenue_chart(total_revenue)
     chart_bytes = chart_image.getvalue() 
     chart_file = BufferedInputFile(chart_bytes, filename="revenue_chart.png")
 
