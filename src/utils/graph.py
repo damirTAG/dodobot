@@ -49,7 +49,7 @@ async def generate_revenue_chart(countries):
     for country in countries:
         currency = country.currency.upper()
         rate = currency_rates.get(currency, 1.0)
-        revenue_in_usd = country.revenue * rate
+        revenue_in_usd = country.revenue / rate
 
         country_names.append(country.countryCode.upper())
         revenues_usd.append(revenue_in_usd)
