@@ -1,17 +1,44 @@
 import matplotlib.pyplot as plt
-import aiohttp
-from io import BytesIO
+import aiohttp, time, json, os
 
-EXCHANGE_API_URL = "https://api.exchangerate.host/latest?base=USD"
+from io import BytesIO
+from dotenv import load_dotenv
+
+load_dotenv()
+
+EXCHANGE_API_URL = "https://api.exchangerate.host/live"
+EXCHANGE_CACHE_FILE = "exchange_cache.json"
+CACHE_DURATION = 86400
+
+def _is_cache_valid() -> bool:
+    if not os.path.exists(EXCHANGE_CACHE_FILE):
+        return False
+    cache_age = time.time() - os.path.getmtime(EXCHANGE_CACHE_FILE)
+    return cache_age < CACHE_DURATION
 
 async def fetch_currency_rates():
+    if _is_cache_valid():
+        with open(EXCHANGE_CACHE_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    access_key = os.getenv("EXCHANGERATE_APIKEY")
+    if not access_key:
+        raise EnvironmentError("Missing EXCHANGERATE_APIKEY in .env")
+
     async with aiohttp.ClientSession() as session:
-        async with session.get(EXCHANGE_API_URL) as response:
+        async with session.get(f"{EXCHANGE_API_URL}?access_key={access_key}") as response:
             data = await response.json()
-            if not data.get("success", True):
-                raise ValueError("Currency API returned failure")
-            rates = data.get("rates", {})
-            return {k.upper(): round(1 / v, 6) for k, v in rates.items()}
+
+            if not data.get("success"):
+                raise ValueError("❌ Currency API request failed")
+
+            quotes = data.get("quotes", {})
+            rates = {k[3:]: v for k, v in quotes.items()}  # 'USDKZT' → 'KZT': rate
+
+            with open(EXCHANGE_CACHE_FILE, "w", encoding="utf-8") as f:
+                json.dump(rates, f)
+
+            return rates
 
 async def generate_revenue_chart(countries):
     currency_rates: dict = await fetch_currency_rates()
